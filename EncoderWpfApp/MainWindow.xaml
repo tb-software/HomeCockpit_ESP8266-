@@ -2,8 +2,16 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Encoder Input" Height="200" Width="300">
-    <Grid>
-        <TextBlock Name="StatusText" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Text="Waiting for input..." />
-    </Grid>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_Optionen">
+                <MenuItem x:Name="AutostartMenuItem" Header="_Autostart" IsCheckable="True" />
+            </MenuItem>
+        </Menu>
+        <StackPanel Margin="10">
+            <TextBlock x:Name="ConnectionText" Text="Disconnected" Margin="0,0,0,5" />
+            <TextBlock x:Name="LastMessageText" Text="No data" Margin="0,0,0,5" />
+            <TextBlock x:Name="KeyText" Text="No key" />
+        </StackPanel>
+    </DockPanel>
 </Window>
