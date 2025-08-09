@@ -4,6 +4,8 @@
 '  Author:  ChatGPT
 '  Description: Application entry.
 '------------------------------------------------------------------------------
-Class App
+Imports System.Windows
+
+Partial Public Class App
     Inherits Application
 End Class
