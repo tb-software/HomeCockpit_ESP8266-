@@ -12,7 +12,8 @@ Imports System
 Public Class CommPortControllerTests
 
     Private Class DummyListener
-        Implements IDisposable
+        Implements ISerialPortListener
+        Public Event Disconnected() Implements ISerialPortListener.Disconnected
         Public Sub Dispose() Implements IDisposable.Dispose
         End Sub
     End Class

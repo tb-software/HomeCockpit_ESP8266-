@@ -13,6 +13,7 @@
         <StackPanel Margin="10">
             <TextBlock x:Name="ConnectionText" Text="Disconnected" Margin="0,0,0,5" />
             <TextBlock x:Name="LastMessageText" Text="No data" Margin="0,0,0,5" />
+            <TextBlock x:Name="VersionText" Text="Version: ?" Margin="0,0,0,5" />
             <TextBlock x:Name="KeyText" Text="No key" />
         </StackPanel>
     </DockPanel>

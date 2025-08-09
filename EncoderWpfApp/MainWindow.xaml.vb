@@ -6,6 +6,7 @@
 '------------------------------------------------------------------------------
 Imports System.Windows
 Imports System.Windows.Controls
+Imports System.Windows.Threading
 Imports EncoderLib
 
 Namespace EncoderWpfApp
@@ -30,6 +31,7 @@ Namespace EncoderWpfApp
             AddHandler keyboard.KeySent, AddressOf OnKeySent
             processor = New EncoderInputProcessor(keyboard, settings.KeyMapping)
             controller = New CommPortController(AddressOf HandleLine)
+            AddHandler controller.Disconnected, AddressOf OnControllerDisconnected
             PopulateComPorts()
             ConnectPort()
             If Environment.GetCommandLineArgs().Contains("--autostart") Then
@@ -41,12 +43,16 @@ Namespace EncoderWpfApp
 
         Private Sub HandleLine(line As String)
             Dim msg As HardwareMessage = Nothing
-            If parser.TryParse(line, msg) Then
-                Dispatcher.Invoke(Sub()
-                                       LastMessageText.Text = line
+            Dim isVersion = line.StartsWith("Version:", StringComparison.OrdinalIgnoreCase)
+            Dim parsed = parser.TryParse(line, msg)
+            Dispatcher.Invoke(Sub()
+                                   LastMessageText.Text = line
+                                   If isVersion Then
+                                       VersionText.Text = line.Trim()
+                                   ElseIf parsed Then
                                        processor.Process(msg, Date.Now)
-                                   End Sub)
-            End If
+                                   End If
+                               End Sub)
         End Sub
 
         Private Sub OnKeySent(key As WindowsKey)
@@ -80,11 +86,42 @@ Namespace EncoderWpfApp
             ConnectPort()
         End Sub
 
+        Private reconnectTimer As DispatcherTimer
+
         Private Sub ConnectPort()
             If controller.Connect(settings.ComPort) Then
                 ConnectionText.Text = $"Connected to {controller.CurrentPort}"
+                StopReconnect()
             Else
-                ConnectionText.Text = "Disconnected"
+                If String.IsNullOrWhiteSpace(controller.LastError) Then
+                    ConnectionText.Text = "Disconnected"
+                Else
+                    ConnectionText.Text = $"Error: {controller.LastError}"
+                End If
+                StartReconnect()
+            End If
+        End Sub
+
+        Private Sub OnControllerDisconnected()
+            Dispatcher.Invoke(Sub()
+                                   ConnectionText.Text = "Disconnected"
+                                   StartReconnect()
+                               End Sub)
+        End Sub
+
+        Private Sub StartReconnect()
+            If reconnectTimer Is Nothing Then
+                reconnectTimer = New DispatcherTimer()
+                reconnectTimer.Interval = TimeSpan.FromSeconds(1)
+                AddHandler reconnectTimer.Tick, Sub() ConnectPort()
+                reconnectTimer.Start()
+            End If
+        End Sub
+
+        Private Sub StopReconnect()
+            If reconnectTimer IsNot Nothing Then
+                reconnectTimer.Stop()
+                reconnectTimer = Nothing
             End If
         End Sub
 
