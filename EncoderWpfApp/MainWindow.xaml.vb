@@ -4,6 +4,9 @@
 '  Author:  ChatGPT
 '  Description: Main window handling serial input.
 '------------------------------------------------------------------------------
+Imports System.Windows
+Imports EncoderLib
+
 Class MainWindow
     Inherits Window
 
