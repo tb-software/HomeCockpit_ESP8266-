@@ -9,7 +9,8 @@ Imports System.Text.Json
 '------------------------------------------------------------------------------
 Public Class AppSettings
     Public Property Autostart As Boolean
-    Public Property ComPort As String = "COM4"
+    Public Property ComPort As String = "Auto"
+    Public Property KeyMapping As New KeyMapper()
 
     Public Shared Function Load(Optional basePath As String = Nothing) As AppSettings
         Dim filePath = GetPath(basePath)

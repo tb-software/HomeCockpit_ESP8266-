@@ -6,6 +6,8 @@
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_Optionen">
                 <MenuItem x:Name="AutostartMenuItem" Header="_Autostart" IsCheckable="True" />
+                <MenuItem x:Name="ComPortMenuItem" Header="_COM-Port" />
+                <MenuItem x:Name="KeyMappingMenuItem" Header="_Key Mapping" />
             </MenuItem>
         </Menu>
         <StackPanel Margin="10">

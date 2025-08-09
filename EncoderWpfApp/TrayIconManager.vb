@@ -19,7 +19,7 @@ Public Class TrayIconManager
         notify.Visible = False
         Dim menu = New ContextMenuStrip()
         menu.Items.Add("Show", Nothing, Sub() ShowWindow())
-        menu.Items.Add("Exit", Nothing, Sub() Application.Current.Shutdown())
+        menu.Items.Add("Exit", Nothing, Sub() System.Windows.Application.Current.Shutdown())
         notify.ContextMenuStrip = menu
         AddHandler notify.DoubleClick, Sub() ShowWindow()
     End Sub

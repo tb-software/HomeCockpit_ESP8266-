@@ -9,6 +9,7 @@ Imports System
 Public Class EncoderInputProcessor
 
     Private ReadOnly keyboard As IKeyboardSender
+    Private mapper As KeyMapper
     Private lastPosition As Integer?
     Private buttonPressed As Boolean
     Private buttonPressStart As DateTime
@@ -16,8 +17,9 @@ Public Class EncoderInputProcessor
     Private ReadOnly releaseThreshold As TimeSpan = TimeSpan.FromMilliseconds(400)
     Private ReadOnly longPressThreshold As TimeSpan = TimeSpan.FromMilliseconds(800)
 
-    Public Sub New(keyboard As IKeyboardSender)
+    Public Sub New(keyboard As IKeyboardSender, mapper As KeyMapper)
         Me.keyboard = keyboard
+        Me.mapper = mapper
     End Sub
 
     Public Sub Process(message As HardwareMessage, timestamp As DateTime)
@@ -43,9 +45,9 @@ Public Class EncoderInputProcessor
             If stepCount <> 0 Then
                 Dim key As WindowsKey
                 If buttonPressed Then
-                    key = If(stepCount > 0, WindowsKey.PageUp, WindowsKey.PageDown)
+                    key = If(stepCount > 0, mapper.RotateUpWithButton, mapper.RotateDownWithButton)
                 Else
-                    key = If(stepCount > 0, WindowsKey.Up, WindowsKey.Down)
+                    key = If(stepCount > 0, mapper.RotateUp, mapper.RotateDown)
                 End If
                 For i = 1 To Math.Abs(stepCount)
                     keyboard.SendKey(key)
@@ -59,9 +61,9 @@ Public Class EncoderInputProcessor
         If buttonPressed AndAlso timestamp - lastButtonSignal > releaseThreshold Then
             Dim duration = timestamp - buttonPressStart
             If duration >= longPressThreshold Then
-                keyboard.SendKey(WindowsKey.Escape)
+                keyboard.SendKey(mapper.ButtonLongPress)
             Else
-                keyboard.SendKey(WindowsKey.Enter)
+                keyboard.SendKey(mapper.ButtonPress)
             End If
             buttonPressed = False
         End If

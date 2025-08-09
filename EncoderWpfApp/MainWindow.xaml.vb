@@ -12,12 +12,12 @@ Namespace EncoderWpfApp
     Class MainWindow
         Inherits Window
 
-        Private ReadOnly listener As SerialPortListener
+        Private controller As CommPortController
         Private ReadOnly parser As New ProtocolParser()
-        Private ReadOnly processor As EncoderInputProcessor
-        Private ReadOnly keyboard As NotifyingKeyboardSender
-        Private ReadOnly settings As AppSettings
-        Private ReadOnly autoStart As AutoStartManager
+        Private processor As EncoderInputProcessor
+        Private keyboard As NotifyingKeyboardSender
+        Private settings As AppSettings
+        Private autoStart As AutoStartManager
         Private tray As TrayIconManager
 
         Public Sub New()
@@ -27,9 +27,10 @@ Namespace EncoderWpfApp
             AutostartMenuItem.IsChecked = autoStart.IsEnabled()
             keyboard = New NotifyingKeyboardSender(New WindowsKeyboardSender())
             AddHandler keyboard.KeySent, AddressOf OnKeySent
-            processor = New EncoderInputProcessor(keyboard)
-            listener = New SerialPortListener(settings.ComPort, AddressOf HandleLine)
-            ConnectionText.Text = $"Connected to {settings.ComPort}"
+            processor = New EncoderInputProcessor(keyboard, settings.KeyMapping)
+            controller = New CommPortController(AddressOf HandleLine)
+            PopulateComPorts()
+            ConnectPort()
             If Environment.GetCommandLineArgs().Contains("--autostart") Then
                 tray = New TrayIconManager(Me)
                 tray.Show()
@@ -56,6 +57,41 @@ Namespace EncoderWpfApp
                 autoStart.Enable()
             Else
                 autoStart.Disable()
+            End If
+        End Sub
+
+        Private Sub PopulateComPorts()
+            ComPortMenuItem.Items.Clear()
+            Dim autoItem = New MenuItem() With {.Header = "_Auto", .IsCheckable = True, .IsChecked = settings.ComPort = "Auto"}
+            AddHandler autoItem.Click, Sub() SetComPort("Auto")
+            ComPortMenuItem.Items.Add(autoItem)
+            For Each port In System.IO.Ports.SerialPort.GetPortNames()
+                Dim item = New MenuItem() With {.Header = port, .IsCheckable = True, .IsChecked = settings.ComPort = port}
+                AddHandler item.Click, Sub() SetComPort(port)
+                ComPortMenuItem.Items.Add(item)
+            Next
+        End Sub
+
+        Private Sub SetComPort(port As String)
+            settings.ComPort = port
+            settings.Save()
+            PopulateComPorts()
+            ConnectPort()
+        End Sub
+
+        Private Sub ConnectPort()
+            If controller.Connect(settings.ComPort) Then
+                ConnectionText.Text = $"Connected to {controller.CurrentPort}"
+            Else
+                ConnectionText.Text = "Disconnected"
+            End If
+        End Sub
+
+        Private Sub KeyMappingMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles KeyMappingMenuItem.Click
+            Dim dlg = New KeyMappingWindow(settings.KeyMapping)
+            If dlg.ShowDialog() Then
+                settings.Save()
+                processor = New EncoderInputProcessor(keyboard, settings.KeyMapping)
             End If
         End Sub
     End Class
