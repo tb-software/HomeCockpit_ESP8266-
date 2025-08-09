@@ -7,23 +7,26 @@
 Imports System.Windows
 Imports EncoderLib
 
-Class MainWindow
-    Inherits Window
+Namespace EncoderWpfApp
 
-    Private ReadOnly listener As SerialPortListener
-    Private ReadOnly parser As New ProtocolParser()
-    Private ReadOnly processor As EncoderInputProcessor
+    Class MainWindow
+        Inherits Window
 
-    Public Sub New()
-        InitializeComponent()
-        processor = New EncoderInputProcessor(New WindowsKeyboardSender())
-        listener = New SerialPortListener("COM4", AddressOf HandleLine)
-    End Sub
+        Private ReadOnly listener As SerialPortListener
+        Private ReadOnly parser As New ProtocolParser()
+        Private ReadOnly processor As EncoderInputProcessor
 
-    Private Sub HandleLine(line As String)
-        Dim msg As HardwareMessage = Nothing
-        If parser.TryParse(line, msg) Then
-            Dispatcher.Invoke(Sub() processor.Process(msg, Date.Now))
-        End If
-    End Sub
-End Class
+        Public Sub New()
+            InitializeComponent()
+            processor = New EncoderInputProcessor(New WindowsKeyboardSender())
+            listener = New SerialPortListener("COM4", AddressOf HandleLine)
+        End Sub
+
+        Private Sub HandleLine(line As String)
+            Dim msg As HardwareMessage = Nothing
+            If parser.TryParse(line, msg) Then
+                Dispatcher.Invoke(Sub() processor.Process(msg, Date.Now))
+            End If
+        End Sub
+    End Class
+End Namespace
