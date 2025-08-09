@@ -2,30 +2,97 @@
 '  Created: 2025-08-09
 '  Edited:  2025-08-09
 '  Author:  ChatGPT
-'  Description: Main window handling serial input.
+'  Description: Main window showing connection info and autostart.
 '------------------------------------------------------------------------------
 Imports System.Windows
+Imports System.Windows.Controls
 Imports EncoderLib
 
 Namespace EncoderWpfApp
 
-    Class MainWindow
+    Partial Class MainWindow
         Inherits Window
 
-        Private ReadOnly listener As SerialPortListener
+        Private controller As CommPortController
         Private ReadOnly parser As New ProtocolParser()
-        Private ReadOnly processor As EncoderInputProcessor
+        Private processor As EncoderInputProcessor
+        Private keyboard As NotifyingKeyboardSender
+        Private settings As AppSettings
+        Private autoStart As AutoStartManager
+        Private tray As TrayIconManager
 
         Public Sub New()
             InitializeComponent()
-            processor = New EncoderInputProcessor(New WindowsKeyboardSender())
-            listener = New SerialPortListener("COM4", AddressOf HandleLine)
+            settings = AppSettings.Load()
+            autoStart = New AutoStartManager("EncoderWpfApp", settings)
+            AutostartMenuItem.IsChecked = autoStart.IsEnabled()
+            keyboard = New NotifyingKeyboardSender(New WindowsKeyboardSender())
+            AddHandler keyboard.KeySent, AddressOf OnKeySent
+            processor = New EncoderInputProcessor(keyboard, settings.KeyMapping)
+            controller = New CommPortController(AddressOf HandleLine)
+            PopulateComPorts()
+            ConnectPort()
+            If Environment.GetCommandLineArgs().Contains("--autostart") Then
+                tray = New TrayIconManager(Me)
+                tray.Show()
+                Me.Hide()
+            End If
         End Sub
 
         Private Sub HandleLine(line As String)
             Dim msg As HardwareMessage = Nothing
             If parser.TryParse(line, msg) Then
-                Dispatcher.Invoke(Sub() processor.Process(msg, Date.Now))
+                Dispatcher.Invoke(Sub()
+                                       LastMessageText.Text = line
+                                       processor.Process(msg, Date.Now)
+                                   End Sub)
+            End If
+        End Sub
+
+        Private Sub OnKeySent(key As WindowsKey)
+            KeyText.Text = $"Last key: {key}"
+        End Sub
+
+        Private Sub AutostartMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles AutostartMenuItem.Click
+            If AutostartMenuItem.IsChecked Then
+                autoStart.Enable()
+            Else
+                autoStart.Disable()
+            End If
+        End Sub
+
+        Private Sub PopulateComPorts()
+            ComPortMenuItem.Items.Clear()
+            Dim autoItem = New MenuItem() With {.Header = "_Auto", .IsCheckable = True, .IsChecked = settings.ComPort = "Auto"}
+            AddHandler autoItem.Click, Sub() SetComPort("Auto")
+            ComPortMenuItem.Items.Add(autoItem)
+            For Each port In System.IO.Ports.SerialPort.GetPortNames()
+                Dim item = New MenuItem() With {.Header = port, .IsCheckable = True, .IsChecked = settings.ComPort = port}
+                AddHandler item.Click, Sub() SetComPort(port)
+                ComPortMenuItem.Items.Add(item)
+            Next
+        End Sub
+
+        Private Sub SetComPort(port As String)
+            settings.ComPort = port
+            settings.Save()
+            PopulateComPorts()
+            ConnectPort()
+        End Sub
+
+        Private Sub ConnectPort()
+            If controller.Connect(settings.ComPort) Then
+                ConnectionText.Text = $"Connected to {controller.CurrentPort}"
+            Else
+                ConnectionText.Text = "Disconnected"
+            End If
+        End Sub
+
+        Private Sub KeyMappingMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles KeyMappingMenuItem.Click
+            Dim dlg = New KeyMappingWindow(settings.KeyMapping)
+            If dlg.ShowDialog() Then
+                settings.Save()
+                processor = New EncoderInputProcessor(keyboard, settings.KeyMapping)
             End If
         End Sub
     End Class

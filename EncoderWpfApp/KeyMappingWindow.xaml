@@ -1,0 +1,44 @@
+<Window x:Class="EncoderWpfApp.KeyMappingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Key Mapping" Height="300" Width="350">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Text="Rotate Up:" Grid.Row="0" Grid.Column="0" Margin="0,0,5,5" />
+        <ComboBox x:Name="RotateUpBox" Grid.Row="0" Grid.Column="1" Margin="0,0,0,5" />
+
+        <TextBlock Text="Rotate Down:" Grid.Row="1" Grid.Column="0" Margin="0,0,5,5" />
+        <ComboBox x:Name="RotateDownBox" Grid.Row="1" Grid.Column="1" Margin="0,0,0,5" />
+
+        <TextBlock Text="Rotate Up + Button:" Grid.Row="2" Grid.Column="0" Margin="0,0,5,5" />
+        <ComboBox x:Name="RotateUpBtnBox" Grid.Row="2" Grid.Column="1" Margin="0,0,0,5" />
+
+        <TextBlock Text="Rotate Down + Button:" Grid.Row="3" Grid.Column="0" Margin="0,0,5,5" />
+        <ComboBox x:Name="RotateDownBtnBox" Grid.Row="3" Grid.Column="1" Margin="0,0,0,5" />
+
+        <TextBlock Text="Button Press:" Grid.Row="4" Grid.Column="0" Margin="0,0,5,5" />
+        <ComboBox x:Name="ButtonPressBox" Grid.Row="4" Grid.Column="1" Margin="0,0,0,5" />
+
+        <TextBlock Text="Button Long Press:" Grid.Row="5" Grid.Column="0" Margin="0,0,5,5" />
+        <ComboBox x:Name="ButtonLongPressBox" Grid.Row="5" Grid.Column="1" Margin="0,0,0,5" />
+
+        <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.ColumnSpan="2" HorizontalAlignment="Right">
+            <Button Content="OK" Width="60" Margin="0,10,5,0" Click="Ok_Click" />
+            <Button Content="Cancel" Width="60" Margin="0,10,0,0" IsCancel="True" />
+        </StackPanel>
+    </Grid>
+</Window>
+
