@@ -1,6 +1,6 @@
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-09
+'  Edited:  2025-08-10
 '  Author:  ChatGPT
 '  Description: Main window showing connection info and autostart.
 '------------------------------------------------------------------------------
@@ -29,7 +29,8 @@ Namespace EncoderWpfApp
             AutostartMenuItem.IsChecked = autoStart.IsEnabled()
             keyboard = New NotifyingKeyboardSender(New WindowsKeyboardSender())
             AddHandler keyboard.KeySent, AddressOf OnKeySent
-            processor = New EncoderInputProcessor(keyboard, settings.KeyMapping)
+            processor = New EncoderInputProcessor(keyboard)
+            processor.Mapper = settings.KeyMapping
             controller = New CommPortController(AddressOf HandleLine)
             AddHandler controller.Disconnected, AddressOf OnControllerDisconnected
             PopulateComPorts()
@@ -129,7 +130,7 @@ Namespace EncoderWpfApp
             Dim dlg = New KeyMappingWindow(settings.KeyMapping)
             If dlg.ShowDialog() Then
                 settings.Save()
-                processor = New EncoderInputProcessor(keyboard, settings.KeyMapping)
+                processor.Mapper = settings.KeyMapping
             End If
         End Sub
     End Class

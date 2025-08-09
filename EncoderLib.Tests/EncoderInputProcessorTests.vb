@@ -6,7 +6,7 @@ Imports System.Linq
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-09
+'  Edited:  2025-08-10
 '  Author:  ChatGPT
 '  Description: Tests for EncoderInputProcessor.
 '------------------------------------------------------------------------------
@@ -24,7 +24,8 @@ Public Class EncoderInputProcessorTests
     <TestMethod>
     Public Sub RotationWithoutButtonSendsUp()
         Dim keyboard = New KeyboardMock()
-        Dim processor = New EncoderInputProcessor(keyboard, New KeyMapper())
+        Dim processor = New EncoderInputProcessor(keyboard)
+        processor.Mapper = New KeyMapper()
         processor.Process(New EncoderMessage(0, RotationDirection.Clockwise), DateTime.UtcNow)
         processor.Process(New EncoderMessage(1, RotationDirection.Clockwise), DateTime.UtcNow)
         Assert.AreEqual(1, keyboard.Sent.Count)
@@ -34,7 +35,8 @@ Public Class EncoderInputProcessorTests
     <TestMethod>
     Public Sub RotationWithButtonSendsPageUp()
         Dim keyboard = New KeyboardMock()
-        Dim processor = New EncoderInputProcessor(keyboard, New KeyMapper())
+        Dim processor = New EncoderInputProcessor(keyboard)
+        processor.Mapper = New KeyMapper()
         Dim now = DateTime.UtcNow
         processor.Process(New ButtonMessage(), now)
         processor.Process(New EncoderMessage(0, RotationDirection.Clockwise), now.AddMilliseconds(10))
@@ -45,7 +47,8 @@ Public Class EncoderInputProcessorTests
     <TestMethod>
     Public Sub ShortPressSendsEnter()
         Dim keyboard = New KeyboardMock()
-        Dim processor = New EncoderInputProcessor(keyboard, New KeyMapper())
+        Dim processor = New EncoderInputProcessor(keyboard)
+        processor.Mapper = New KeyMapper()
         Dim now = DateTime.UtcNow
         processor.Process(New ButtonMessage(), now)
         processor.Process(Nothing, now.AddMilliseconds(500))
@@ -55,7 +58,8 @@ Public Class EncoderInputProcessorTests
     <TestMethod>
     Public Sub LongPressSendsEscape()
         Dim keyboard = New KeyboardMock()
-        Dim processor = New EncoderInputProcessor(keyboard, New KeyMapper())
+        Dim processor = New EncoderInputProcessor(keyboard)
+        processor.Mapper = New KeyMapper()
         Dim now = DateTime.UtcNow
         processor.Process(New ButtonMessage(), now)
         processor.Process(New ButtonMessage(), now.AddMilliseconds(300))
