@@ -1,4 +1,5 @@
 Imports System.Runtime.InteropServices
+Imports System.Diagnostics
 Imports Microsoft.Win32
 
 '------------------------------------------------------------------------------

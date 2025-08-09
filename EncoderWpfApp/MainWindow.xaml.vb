@@ -5,11 +5,12 @@
 '  Description: Main window showing connection info and autostart.
 '------------------------------------------------------------------------------
 Imports System.Windows
+Imports System.Windows.Controls
 Imports EncoderLib
 
 Namespace EncoderWpfApp
 
-    Class MainWindow
+    Partial Class MainWindow
         Inherits Window
 
         Private controller As CommPortController
