@@ -4,7 +4,7 @@ Imports System.Threading.Tasks
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-09
+'  Edited:  2025-08-10
 '  Author:  ChatGPT
 '  Description: Reads lines from a serial port and exposes them via callback.
 '------------------------------------------------------------------------------
@@ -14,11 +14,11 @@ Public Class SerialPortListener
     Private ReadOnly port As SerialPort
     Private ReadOnly lineHandler As Action(Of String)
     Private ReadOnly cancel As CancellationTokenSource
+    Private ReadOnly buffer As New LineBuffer()
 
     Public Sub New(portName As String, lineHandler As Action(Of String))
         Me.lineHandler = lineHandler
         port = New SerialPort(portName, 115200, Parity.None, 8, StopBits.One) With {
-            .NewLine = "\n",
             .DtrEnable = True,
             .RtsEnable = True
         }
@@ -30,8 +30,14 @@ Public Class SerialPortListener
     Private Sub ReadLoop()
         Try
             While Not cancel.IsCancellationRequested
-                Dim line = port.ReadLine()
-                lineHandler.Invoke(line.Trim())
+                Dim data = port.ReadExisting()
+                If data.Length > 0 Then
+                    For Each line In buffer.ExtractLines(data)
+                        lineHandler.Invoke(line.Trim())
+                    Next
+                Else
+                    Thread.Sleep(10)
+                End If
             End While
         Catch
             RaiseEvent Disconnected()
