@@ -8,6 +8,7 @@ Imports System.Windows
 Imports System.Windows.Controls
 Imports System.Windows.Threading
 Imports EncoderLib
+Imports System.Collections.Generic
 
 Namespace EncoderWpfApp
 
@@ -28,7 +29,7 @@ Namespace EncoderWpfApp
             autoStart = New AutoStartManager("EncoderWpfApp", settings)
             AutostartMenuItem.IsChecked = autoStart.IsEnabled()
             keyboard = New NotifyingKeyboardSender(New WindowsKeyboardSender())
-            AddHandler keyboard.KeySent, AddressOf OnKeySent
+            AddHandler keyboard.KeysSent, AddressOf OnKeysSent
             processor = New EncoderInputProcessor(keyboard)
             processor.Mapper = settings.KeyMapping
             controller = New CommPortController(AddressOf HandleLine)
@@ -56,8 +57,8 @@ Namespace EncoderWpfApp
                                End Sub)
         End Sub
 
-        Private Sub OnKeySent(key As WindowsKey)
-            KeyText.Text = $"Last key: {key}"
+        Private Sub OnKeysSent(keys As IReadOnlyList(Of WindowsKey))
+            KeyText.Text = $"Last key: {String.Join(" + ", keys)}"
         End Sub
 
         Private Sub AutostartMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles AutostartMenuItem.Click
@@ -132,6 +133,11 @@ Namespace EncoderWpfApp
                 settings.Save()
                 processor.Mapper = settings.KeyMapping
             End If
+        End Sub
+
+        Private Sub SimulatorMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles SimulatorMenuItem.Click
+            Dim sim As New HardwareSimulatorWindow(processor)
+            sim.Show()
         End Sub
     End Class
 End Namespace
