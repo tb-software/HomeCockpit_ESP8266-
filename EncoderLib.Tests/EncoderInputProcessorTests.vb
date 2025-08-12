@@ -16,10 +16,10 @@ Public Class EncoderInputProcessorTests
 
     Private Class KeyboardMock
         Implements IKeyboardSender
-        Public ReadOnly Sent As New List(Of WindowsKey)
-        Public Sub SendKey(key As WindowsKey) Implements IKeyboardSender.SendKey
+        Public ReadOnly Sent As New List(Of IReadOnlyList(Of WindowsKey))
+        Public Sub SendKeys(keys As IReadOnlyList(Of WindowsKey)) Implements IKeyboardSender.SendKeys
             SyncLock Sent
-                Sent.Add(key)
+                Sent.Add(keys)
             End SyncLock
         End Sub
     End Class
@@ -32,7 +32,7 @@ Public Class EncoderInputProcessorTests
         processor.Process(New EncoderMessage(0, RotationDirection.Clockwise), DateTime.UtcNow)
         processor.Process(New EncoderMessage(1, RotationDirection.Clockwise), DateTime.UtcNow)
         Assert.AreEqual(1, keyboard.Sent.Count)
-        Assert.AreEqual(WindowsKey.Up, keyboard.Sent(0))
+        Assert.AreEqual(WindowsKey.Up, keyboard.Sent(0)(0))
     End Sub
 
     <TestMethod>
@@ -44,7 +44,7 @@ Public Class EncoderInputProcessorTests
         processor.Process(New ButtonMessage(), now)
         processor.Process(New EncoderMessage(0, RotationDirection.Clockwise), now.AddMilliseconds(10))
         processor.Process(New EncoderMessage(1, RotationDirection.Clockwise), now.AddMilliseconds(20))
-        Assert.AreEqual(WindowsKey.PageUp, keyboard.Sent.Last())
+        Assert.AreEqual(WindowsKey.PageUp, keyboard.Sent.Last()(0))
     End Sub
 
     <TestMethod>
@@ -55,7 +55,7 @@ Public Class EncoderInputProcessorTests
         processor.Process(New ButtonMessage(), DateTime.UtcNow)
         Thread.Sleep(300)
         SyncLock keyboard.Sent
-            Assert.AreEqual(WindowsKey.Enter, keyboard.Sent.Single())
+            Assert.AreEqual(WindowsKey.Enter, keyboard.Sent.Single()(0))
         End SyncLock
     End Sub
 
@@ -71,7 +71,7 @@ Public Class EncoderInputProcessorTests
         Next
         Thread.Sleep(300)
         SyncLock keyboard.Sent
-            Assert.AreEqual(WindowsKey.Escape, keyboard.Sent.Single())
+            Assert.AreEqual(WindowsKey.Escape, keyboard.Sent.Single()(0))
         End SyncLock
     End Sub
 End Class

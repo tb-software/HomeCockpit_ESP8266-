@@ -18,16 +18,16 @@ Public Class AppSettingsTests
             .Autostart = True,
             .ComPort = "COM7",
             .KeyMapping = New KeyMapper() With {
-                .RotateUp = WindowsKey.PageUp,
-                .ButtonPress = WindowsKey.Escape
+                .RotateUp = "PageUp",
+                .ButtonPress = "Escape"
             }
         }
         settings.Save(dir)
         Dim loaded = AppSettings.Load(dir)
         Assert.IsTrue(loaded.Autostart)
         Assert.AreEqual("COM7", loaded.ComPort)
-        Assert.AreEqual(WindowsKey.PageUp, loaded.KeyMapping.RotateUp)
-        Assert.AreEqual(WindowsKey.Escape, loaded.KeyMapping.ButtonPress)
+        Assert.AreEqual("PageUp", loaded.KeyMapping.RotateUp)
+        Assert.AreEqual("Escape", loaded.KeyMapping.ButtonPress)
     End Sub
 
 End Class

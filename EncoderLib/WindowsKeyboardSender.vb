@@ -1,8 +1,9 @@
 Imports System.Runtime.InteropServices
+Imports System.Collections.Generic
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-09
+'  Edited:  2025-08-12
 '  Author:  ChatGPT
 '  Description: Sends keyboard input via Win32 SendInput.
 '------------------------------------------------------------------------------
@@ -28,11 +29,16 @@ Public Class WindowsKeyboardSender
     Private Shared Function SendInput(nInputs As UInteger, inputs() As INPUT, cbSize As Integer) As UInteger
     End Function
 
-    Public Sub SendKey(key As WindowsKey) Implements IKeyboardSender.SendKey
-        Dim inputs(1) As INPUT
-        inputs(0) = CreateInput(key, False)
-        inputs(1) = CreateInput(key, True)
-        SendInput(2UI, inputs, Marshal.SizeOf(GetType(INPUT)))
+    Public Sub SendKeys(keys As IReadOnlyList(Of WindowsKey)) Implements IKeyboardSender.SendKeys
+        If keys Is Nothing OrElse keys.Count = 0 Then Return
+        Dim list As New List(Of INPUT)()
+        For Each key In keys
+            list.Add(CreateInput(key, False))
+        Next
+        For i = keys.Count - 1 To 0 Step -1
+            list.Add(CreateInput(keys(i), True))
+        Next
+        SendInput(CUInt(list.Count), list.ToArray(), Marshal.SizeOf(GetType(INPUT)))
     End Sub
 
     Private Function CreateInput(key As WindowsKey, keyUp As Boolean) As INPUT
