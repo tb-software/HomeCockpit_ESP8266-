@@ -1,6 +1,6 @@
 '------------------------------------------------------------------------------
 '  Created: 2025-08-12
-'  Edited:  2025-08-12
+'  Edited:  2025-08-14
 '  Author:  ChatGPT
 '  Description: Tests for hardware simulator run-all button.
 '------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ Public Class HardwareSimulatorWindowTests
     Public Async Function ClickAllButtonsAsync_SendsExpectedSequences() As Task
         Dim recorder As New RecordingKeyboardSender()
         Dim processor As New EncoderInputProcessor(recorder)
-        Dim window As New EncoderWpfApp.HardwareSimulatorWindow(processor, Function(ts) Task.CompletedTask)
+        Dim window As New Global.EncoderWpfApp.HardwareSimulatorWindow(processor, Function(ts) Task.CompletedTask)
 
         Await window.ClickAllButtonsAsync()
         Await Task.Delay(300)
