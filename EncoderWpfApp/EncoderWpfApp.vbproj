@@ -6,6 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <RootNamespace>EncoderWpfApp</RootNamespace>
+    <ApplicationIcon>..\Assets\HomeCockpit_Icon_DEFAULT.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="HomeCockpit_Icon_DEFAULT.png" />
@@ -15,6 +16,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\Assets\HomeCockpit_Icon_DEFAULT.ico" />
+    <Resource Include="..\Assets\HomeCockpit_Icon_ACTIVE.ico" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="HomeCockpit_Icon_DEFAULT.png" />
