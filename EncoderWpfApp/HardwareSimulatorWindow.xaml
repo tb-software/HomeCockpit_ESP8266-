@@ -1,4 +1,4 @@
-<Window x:Class="EncoderWpfApp.HardwareSimulatorWindow"
+<Window x:Class="HardwareSimulatorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Simulator" Height="250" Width="200" Icon="/HomeCockpit_Icon_DEFAULT.png">
@@ -9,5 +9,6 @@
         <Button Content="Rotate Down + Button" Margin="0,0,0,5" Click="RotateDownBtn_Click" />
         <Button Content="Button Press" Margin="0,0,0,5" Click="ButtonPress_Click" />
         <Button Content="Button Long Press" Click="ButtonLongPress_Click" />
+        <Button Content="Run All" Margin="0,10,0,0" Click="RunAllButtons_Click" />
     </StackPanel>
 </Window>
