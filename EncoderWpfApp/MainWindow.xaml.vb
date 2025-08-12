@@ -9,6 +9,7 @@ Imports System.Windows.Controls
 Imports System.Windows.Threading
 Imports EncoderLib
 Imports System.Collections.Generic
+Imports System.Diagnostics
 
 Namespace EncoderWpfApp
 
@@ -25,9 +26,10 @@ Namespace EncoderWpfApp
 
         Public Sub New()
             InitializeComponent()
-            Dim appVersion = My.Application.Info.Version.ToString()
-            Me.Title = $"HomeCockpit  - Jonas Lang / Timo Boehme - V{appVersion}"
-            VersionText.Text = $"Version: {appVersion}"
+            Dim assembly = System.Reflection.Assembly.GetExecutingAssembly()
+            Dim fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location).FileVersion
+            Me.Title = $"HomeCockpit  - Jonas Lang / Timo Boehme - V{fileVersion}"
+            VersionText.Text = $"Version: {fileVersion}"
             settings = AppSettings.Load()
             autoStart = New AutoStartManager("EncoderWpfApp", settings)
             AutostartMenuItem.IsChecked = autoStart.IsEnabled()
