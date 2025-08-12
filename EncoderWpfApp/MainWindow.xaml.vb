@@ -1,6 +1,6 @@
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-10
+'  Edited:  2025-08-12
 '  Author:  ChatGPT
 '  Description: Main window showing connection info and autostart.
 '------------------------------------------------------------------------------
@@ -36,9 +36,11 @@ Namespace EncoderWpfApp
             AddHandler controller.Disconnected, AddressOf OnControllerDisconnected
             PopulateComPorts()
             ConnectPort()
+            tray = New TrayIconManager(Me)
+            tray.Show()
+            AddHandler Me.StateChanged, AddressOf OnStateChanged
+            AddHandler Me.Closed, Sub() tray.Dispose()
             If Environment.GetCommandLineArgs().Contains("--autostart") Then
-                tray = New TrayIconManager(Me)
-                tray.Show()
                 Me.Hide()
             End If
         End Sub
@@ -59,6 +61,7 @@ Namespace EncoderWpfApp
 
         Private Sub OnKeysSent(keys As IReadOnlyList(Of WindowsKey))
             KeyText.Text = $"Last key: {String.Join(" + ", keys)}"
+            tray.IndicateKeyPress()
         End Sub
 
         Private Sub AutostartMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles AutostartMenuItem.Click
@@ -138,6 +141,12 @@ Namespace EncoderWpfApp
         Private Sub SimulatorMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles SimulatorMenuItem.Click
             Dim sim As New HardwareSimulatorWindow(processor)
             sim.Show()
+        End Sub
+
+        Private Sub OnStateChanged(sender As Object, e As EventArgs)
+            If WindowState = WindowState.Minimized Then
+                Me.Hide()
+            End If
         End Sub
     End Class
 End Namespace

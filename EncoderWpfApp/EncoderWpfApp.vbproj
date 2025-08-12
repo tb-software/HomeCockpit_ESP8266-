@@ -6,11 +6,16 @@
     <UseWindowsForms>true</UseWindowsForms>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <RootNamespace>EncoderWpfApp</RootNamespace>
+    <ApplicationIcon>..\Assets\HomeCockpit_Icon_DEFAULT.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\EncoderLib\EncoderLib.vbproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\Assets\HomeCockpit_Icon_DEFAULT.ico" />
+    <Resource Include="..\Assets\HomeCockpit_Icon_ACTIVE.ico" />
   </ItemGroup>
 </Project>
