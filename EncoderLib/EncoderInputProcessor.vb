@@ -1,8 +1,9 @@
 Imports System
+Imports System.Timers
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-10
+'  Edited:  2025-08-11
 '  Author:  ChatGPT
 '  Description: Processes hardware messages and triggers keyboard actions.
 '------------------------------------------------------------------------------
@@ -14,26 +15,32 @@ Public Class EncoderInputProcessor
     Private buttonPressed As Boolean
     Private buttonPressStart As DateTime
     Private lastButtonSignal As DateTime
-    Private ReadOnly releaseThreshold As TimeSpan = TimeSpan.FromMilliseconds(400)
+    Private ReadOnly releaseThreshold As TimeSpan = TimeSpan.FromMilliseconds(200)
     Private ReadOnly longPressThreshold As TimeSpan = TimeSpan.FromMilliseconds(800)
+    Private ReadOnly releaseTimer As Timer
+    Private ReadOnly stateLock As New Object()
 
     Public Sub New(keyboard As IKeyboardSender)
         Me.keyboard = keyboard
         Me.Mapper = New KeyMapper()
+        releaseTimer = CreateReleaseTimer()
     End Sub
 
     Public Sub New(keyboard As IKeyboardSender, mapper As KeyMapper)
         Me.keyboard = keyboard
         Me.Mapper = mapper
+        releaseTimer = CreateReleaseTimer()
     End Sub
 
     Public Sub Process(message As HardwareMessage, timestamp As DateTime)
-        If TypeOf message Is ButtonMessage Then
-            ProcessButtonPress(timestamp)
-        ElseIf TypeOf message Is EncoderMessage Then
-            ProcessEncoder(CType(message, EncoderMessage))
-        End If
-        CheckButtonRelease(timestamp)
+        SyncLock stateLock
+            If TypeOf message Is ButtonMessage Then
+                ProcessButtonPress(timestamp)
+            ElseIf TypeOf message Is EncoderMessage Then
+                ProcessEncoder(CType(message, EncoderMessage))
+            End If
+            CheckButtonRelease(timestamp)
+        End SyncLock
     End Sub
 
     Private Sub ProcessButtonPress(timestamp As DateTime)
@@ -72,5 +79,19 @@ Public Class EncoderInputProcessor
             End If
             buttonPressed = False
         End If
+    End Sub
+
+    Private Function CreateReleaseTimer() As Timer
+        Dim t As New Timer(50)
+        AddHandler t.Elapsed, AddressOf OnReleaseTimer
+        t.AutoReset = True
+        t.Start()
+        Return t
+    End Function
+
+    Private Sub OnReleaseTimer(sender As Object, e As ElapsedEventArgs)
+        SyncLock stateLock
+            CheckButtonRelease(DateTime.UtcNow)
+        End SyncLock
     End Sub
 End Class

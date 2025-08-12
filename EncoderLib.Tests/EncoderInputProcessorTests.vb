@@ -3,10 +3,11 @@ Imports Microsoft.VisualStudio.TestTools.UnitTesting
 Imports System
 Imports System.Collections.Generic
 Imports System.Linq
+Imports System.Threading
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-10
+'  Edited:  2025-08-11
 '  Author:  ChatGPT
 '  Description: Tests for EncoderInputProcessor.
 '------------------------------------------------------------------------------
@@ -17,7 +18,9 @@ Public Class EncoderInputProcessorTests
         Implements IKeyboardSender
         Public ReadOnly Sent As New List(Of WindowsKey)
         Public Sub SendKey(key As WindowsKey) Implements IKeyboardSender.SendKey
-            Sent.Add(key)
+            SyncLock Sent
+                Sent.Add(key)
+            End SyncLock
         End Sub
     End Class
 
@@ -49,10 +52,11 @@ Public Class EncoderInputProcessorTests
         Dim keyboard = New KeyboardMock()
         Dim processor = New EncoderInputProcessor(keyboard)
         processor.Mapper = New KeyMapper()
-        Dim now = DateTime.UtcNow
-        processor.Process(New ButtonMessage(), now)
-        processor.Process(Nothing, now.AddMilliseconds(500))
-        Assert.AreEqual(WindowsKey.Enter, keyboard.Sent.Single())
+        processor.Process(New ButtonMessage(), DateTime.UtcNow)
+        Thread.Sleep(300)
+        SyncLock keyboard.Sent
+            Assert.AreEqual(WindowsKey.Enter, keyboard.Sent.Single())
+        End SyncLock
     End Sub
 
     <TestMethod>
@@ -60,10 +64,14 @@ Public Class EncoderInputProcessorTests
         Dim keyboard = New KeyboardMock()
         Dim processor = New EncoderInputProcessor(keyboard)
         processor.Mapper = New KeyMapper()
-        Dim now = DateTime.UtcNow
-        processor.Process(New ButtonMessage(), now)
-        processor.Process(New ButtonMessage(), now.AddMilliseconds(300))
-        processor.Process(Nothing, now.AddMilliseconds(1200))
-        Assert.AreEqual(WindowsKey.Escape, keyboard.Sent.Single())
+        processor.Process(New ButtonMessage(), DateTime.UtcNow)
+        For i = 1 To 6
+            Thread.Sleep(150)
+            processor.Process(New ButtonMessage(), DateTime.UtcNow)
+        Next
+        Thread.Sleep(300)
+        SyncLock keyboard.Sent
+            Assert.AreEqual(WindowsKey.Escape, keyboard.Sent.Single())
+        End SyncLock
     End Sub
 End Class
