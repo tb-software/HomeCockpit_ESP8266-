@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -8,9 +8,15 @@
     <RootNamespace>EncoderWpfApp</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="HomeCockpit_Icon_DEFAULT.png" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\EncoderLib\EncoderLib.vbproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.IO.Ports" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="HomeCockpit_Icon_DEFAULT.png" />
   </ItemGroup>
 </Project>
