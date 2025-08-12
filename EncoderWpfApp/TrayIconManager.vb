@@ -18,26 +18,26 @@ Public Class TrayIconManager
 
     Private ReadOnly notify As NotifyIcon
     Private ReadOnly owner As Window
-    Private ReadOnly defaultIcon As Icon
-    Private ReadOnly activeIcon As Icon
+    Private ReadOnly defaultIconImage As Icon
+    Private ReadOnly activeIconImage As Icon
     Private ReadOnly revertTimer As DispatcherTimer
 
     Public Sub New(owner As Window)
         Me.owner = owner
         notify = New NotifyIcon()
-        defaultIcon = LoadIcon(DefaultIconResource)
-        activeIcon = LoadIcon(ActiveIconResource)
-        notify.Icon = defaultIcon
+        defaultIconImage = LoadIcon(DefaultIconResource)
+        activeIconImage = LoadIcon(ActiveIconResource)
+        notify.Icon = defaultIconImage
         notify.Text = "Encoder Input"
         notify.Visible = False
         Dim menu = New ContextMenuStrip()
         menu.Items.Add("Show", Nothing, Sub() ShowWindow())
-        menu.Items.Add("Exit", Nothing, Sub() Application.Current.Shutdown())
+        menu.Items.Add("Exit", Nothing, Sub() System.Windows.Application.Current.Shutdown())
         notify.ContextMenuStrip = menu
         AddHandler notify.DoubleClick, Sub() ShowWindow()
         revertTimer = New DispatcherTimer() With {.Interval = TimeSpan.FromMilliseconds(200)}
         AddHandler revertTimer.Tick, Sub()
-                                             notify.Icon = defaultIcon
+                                             notify.Icon = defaultIconImage
                                              revertTimer.Stop()
                                          End Sub
     End Sub
@@ -54,7 +54,7 @@ Public Class TrayIconManager
     End Sub
 
     Public Sub IndicateKeyPress()
-        notify.Icon = activeIcon
+        notify.Icon = activeIconImage
         revertTimer.Stop()
         revertTimer.Start()
     End Sub
@@ -67,13 +67,13 @@ Public Class TrayIconManager
 
     Public ReadOnly Property DefaultIcon As Icon
         Get
-            Return defaultIcon
+            Return defaultIconImage
         End Get
     End Property
 
     Public ReadOnly Property ActiveIcon As Icon
         Get
-            Return activeIcon
+            Return activeIconImage
         End Get
     End Property
 
@@ -86,8 +86,8 @@ Public Class TrayIconManager
     Public Sub Dispose() Implements IDisposable.Dispose
         notify.Visible = False
         notify.Dispose()
-        defaultIcon.Dispose()
-        activeIcon.Dispose()
+        defaultIconImage.Dispose()
+        activeIconImage.Dispose()
         revertTimer.Stop()
     End Sub
 End Class
