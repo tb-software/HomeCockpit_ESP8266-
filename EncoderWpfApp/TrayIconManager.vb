@@ -1,20 +1,19 @@
 Imports System.Windows
 Imports System.Windows.Forms
-Imports System.Reflection
 Imports System.Windows.Threading
 Imports System.Drawing
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-12
+'  Edited:  2025-08-13
 '  Author:  ChatGPT
 '  Description: Manages system tray icon and key press indication.
 '------------------------------------------------------------------------------
 Public Class TrayIconManager
     Implements IDisposable
 
-    Private Const DefaultIconResource As String = "EncoderWpfApp.HomeCockpit_Icon_DEFAULT.ico"
-    Private Const ActiveIconResource As String = "EncoderWpfApp.HomeCockpit_Icon_ACTIVE.ico"
+    Private Const DefaultIconResource As String = "pack://application:,,,/HomeCockpit_Icon_DEFAULT.ico"
+    Private Const ActiveIconResource As String = "pack://application:,,,/HomeCockpit_Icon_ACTIVE.ico"
 
     Private ReadOnly notify As NotifyIcon
     Private ReadOnly owner As Window
@@ -42,9 +41,9 @@ Public Class TrayIconManager
                                          End Sub
     End Sub
 
-    Private Shared Function LoadIcon(resourceName As String) As Icon
-        Dim asm = Assembly.GetExecutingAssembly()
-        Using stream = asm.GetManifestResourceStream(resourceName)
+    Private Shared Function LoadIcon(resourceUri As String) As Icon
+        Dim uri = New Uri(resourceUri, UriKind.RelativeOrAbsolute)
+        Using stream = System.Windows.Application.GetResourceStream(uri).Stream
             Return New Icon(stream)
         End Using
     End Function
