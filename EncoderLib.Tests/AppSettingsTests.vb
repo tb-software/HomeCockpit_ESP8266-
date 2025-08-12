@@ -4,7 +4,7 @@ Imports System.IO
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-09
+'  Edited:  2025-08-12
 '  Author:  ChatGPT
 '  Description: Tests for AppSettings persistence.
 '------------------------------------------------------------------------------
@@ -28,6 +28,18 @@ Public Class AppSettingsTests
         Assert.AreEqual("COM7", loaded.ComPort)
         Assert.AreEqual("PageUp", loaded.KeyMapping.RotateUp)
         Assert.AreEqual("Escape", loaded.KeyMapping.ButtonPress)
+    End Sub
+
+    <TestMethod>
+    Public Sub LoadLegacyNumericKeyMapping()
+        Dim dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString())
+        Directory.CreateDirectory(dir)
+        Dim json = "{""Autostart"":false,""ComPort"":""Auto"",""KeyMapping"":{""RotateUp"":38,""RotateDown"":40,""ButtonPress"":13}}"
+        File.WriteAllText(Path.Combine(dir, "settings.json"), json)
+        Dim loaded = AppSettings.Load(dir)
+        Assert.AreEqual("Up", loaded.KeyMapping.RotateUp)
+        Assert.AreEqual("Down", loaded.KeyMapping.RotateDown)
+        Assert.AreEqual("Enter", loaded.KeyMapping.ButtonPress)
     End Sub
 
 End Class
