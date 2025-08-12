@@ -16,7 +16,7 @@ Namespace EncoderWpfApp
         Public Sub New(mapping As KeyMapper)
             InitializeComponent()
             Me.mapping = mapping
-            Dim values = [Enum].GetValues(GetType(WindowsKey))
+            Dim values = [Enum].GetNames(GetType(WindowsKey))
             RotateUpBox.ItemsSource = values
             RotateDownBox.ItemsSource = values
             RotateUpBtnBox.ItemsSource = values
@@ -24,21 +24,21 @@ Namespace EncoderWpfApp
             ButtonPressBox.ItemsSource = values
             ButtonLongPressBox.ItemsSource = values
 
-            RotateUpBox.SelectedItem = mapping.RotateUp
-            RotateDownBox.SelectedItem = mapping.RotateDown
-            RotateUpBtnBox.SelectedItem = mapping.RotateUpWithButton
-            RotateDownBtnBox.SelectedItem = mapping.RotateDownWithButton
-            ButtonPressBox.SelectedItem = mapping.ButtonPress
-            ButtonLongPressBox.SelectedItem = mapping.ButtonLongPress
+            RotateUpBox.Text = mapping.RotateUp
+            RotateDownBox.Text = mapping.RotateDown
+            RotateUpBtnBox.Text = mapping.RotateUpWithButton
+            RotateDownBtnBox.Text = mapping.RotateDownWithButton
+            ButtonPressBox.Text = mapping.ButtonPress
+            ButtonLongPressBox.Text = mapping.ButtonLongPress
         End Sub
 
         Private Sub Ok_Click(sender As Object, e As RoutedEventArgs)
-            mapping.RotateUp = CType(RotateUpBox.SelectedItem, WindowsKey)
-            mapping.RotateDown = CType(RotateDownBox.SelectedItem, WindowsKey)
-            mapping.RotateUpWithButton = CType(RotateUpBtnBox.SelectedItem, WindowsKey)
-            mapping.RotateDownWithButton = CType(RotateDownBtnBox.SelectedItem, WindowsKey)
-            mapping.ButtonPress = CType(ButtonPressBox.SelectedItem, WindowsKey)
-            mapping.ButtonLongPress = CType(ButtonLongPressBox.SelectedItem, WindowsKey)
+            mapping.RotateUp = RotateUpBox.Text
+            mapping.RotateDown = RotateDownBox.Text
+            mapping.RotateUpWithButton = RotateUpBtnBox.Text
+            mapping.RotateDownWithButton = RotateDownBtnBox.Text
+            mapping.ButtonPress = ButtonPressBox.Text
+            mapping.ButtonLongPress = ButtonLongPressBox.Text
             DialogResult = True
         End Sub
     End Class

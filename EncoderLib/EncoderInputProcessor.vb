@@ -1,4 +1,5 @@
 Imports System
+Imports System.Collections.Generic
 Imports System.Timers
 
 '------------------------------------------------------------------------------
@@ -55,14 +56,14 @@ Public Class EncoderInputProcessor
         If lastPosition.HasValue Then
             Dim stepCount = msg.Position - lastPosition.Value
             If stepCount <> 0 Then
-                Dim key As WindowsKey
+                Dim combo As IReadOnlyList(Of WindowsKey)
                 If buttonPressed Then
-                    key = If(stepCount > 0, Mapper.RotateUpWithButton, Mapper.RotateDownWithButton)
+                    combo = KeyCombinationParser.Parse(If(stepCount > 0, Mapper.RotateUpWithButton, Mapper.RotateDownWithButton))
                 Else
-                    key = If(stepCount > 0, Mapper.RotateUp, Mapper.RotateDown)
+                    combo = KeyCombinationParser.Parse(If(stepCount > 0, Mapper.RotateUp, Mapper.RotateDown))
                 End If
                 For i = 1 To Math.Abs(stepCount)
-                    keyboard.SendKey(key)
+                    keyboard.SendKeys(combo)
                 Next
             End If
         End If
@@ -73,9 +74,9 @@ Public Class EncoderInputProcessor
         If buttonPressed AndAlso timestamp - lastButtonSignal > releaseThreshold Then
             Dim duration = timestamp - buttonPressStart
             If duration >= longPressThreshold Then
-                keyboard.SendKey(Mapper.ButtonLongPress)
+                keyboard.SendKeys(KeyCombinationParser.Parse(Mapper.ButtonLongPress))
             Else
-                keyboard.SendKey(Mapper.ButtonPress)
+                keyboard.SendKeys(KeyCombinationParser.Parse(Mapper.ButtonPress))
             End If
             buttonPressed = False
         End If

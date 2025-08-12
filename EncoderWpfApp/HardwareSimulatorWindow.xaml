@@ -1,0 +1,13 @@
+<Window x:Class="EncoderWpfApp.HardwareSimulatorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Simulator" Height="250" Width="200">
+    <StackPanel Margin="10">
+        <Button Content="Rotate Up" Margin="0,0,0,5" Click="RotateUp_Click" />
+        <Button Content="Rotate Down" Margin="0,0,0,5" Click="RotateDown_Click" />
+        <Button Content="Rotate Up + Button" Margin="0,0,0,5" Click="RotateUpBtn_Click" />
+        <Button Content="Rotate Down + Button" Margin="0,0,0,5" Click="RotateDownBtn_Click" />
+        <Button Content="Button Press" Margin="0,0,0,5" Click="ButtonPress_Click" />
+        <Button Content="Button Long Press" Click="ButtonLongPress_Click" />
+    </StackPanel>
+</Window>
