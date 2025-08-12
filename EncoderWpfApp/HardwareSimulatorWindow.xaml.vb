@@ -1,3 +1,4 @@
+Imports System
 Imports System.Threading.Tasks
 Imports System.Windows
 Imports EncoderLib
@@ -13,11 +14,13 @@ Namespace EncoderWpfApp
         Inherits Window
 
         Private ReadOnly processor As EncoderInputProcessor
+        Private ReadOnly delayProvider As Func(Of TimeSpan, Task)
         Private position As Integer
 
-        Public Sub New(proc As EncoderInputProcessor)
+        Public Sub New(proc As EncoderInputProcessor, Optional delayProvider As Func(Of TimeSpan, Task) = Nothing)
             InitializeComponent()
             processor = proc
+            Me.delayProvider = If(delayProvider, Function(ts) Task.Delay(ts))
             position = 0
         End Sub
 
@@ -45,12 +48,35 @@ Namespace EncoderWpfApp
             processor.Process(New ButtonMessage(), DateTime.UtcNow)
         End Sub
 
-        Private Async Sub ButtonLongPress_Click(sender As Object, e As RoutedEventArgs)
+        Private Async Function PerformButtonLongPressAsync() As Task
             processor.Process(New ButtonMessage(), DateTime.UtcNow)
             For i = 1 To 6
-                Await Task.Delay(150)
+                Await delayProvider(TimeSpan.FromMilliseconds(150))
                 processor.Process(New ButtonMessage(), DateTime.UtcNow)
             Next
+        End Function
+
+        Private Async Sub ButtonLongPress_Click(sender As Object, e As RoutedEventArgs)
+            Await PerformButtonLongPressAsync()
+        End Sub
+
+        Public Async Function ClickAllButtonsAsync() As Task
+            Await delayProvider(TimeSpan.FromSeconds(1))
+            RotateUp_Click(Me, New RoutedEventArgs())
+            Await delayProvider(TimeSpan.FromSeconds(1))
+            RotateDown_Click(Me, New RoutedEventArgs())
+            Await delayProvider(TimeSpan.FromSeconds(1))
+            RotateUpBtn_Click(Me, New RoutedEventArgs())
+            Await delayProvider(TimeSpan.FromSeconds(1))
+            RotateDownBtn_Click(Me, New RoutedEventArgs())
+            Await delayProvider(TimeSpan.FromSeconds(1))
+            ButtonPress_Click(Me, New RoutedEventArgs())
+            Await delayProvider(TimeSpan.FromSeconds(1))
+            Await PerformButtonLongPressAsync()
+        End Function
+
+        Private Async Sub RunAllButtons_Click(sender As Object, e As RoutedEventArgs)
+            Await ClickAllButtonsAsync()
         End Sub
     End Class
 End Namespace

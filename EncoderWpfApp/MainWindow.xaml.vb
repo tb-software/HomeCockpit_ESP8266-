@@ -25,6 +25,9 @@ Namespace EncoderWpfApp
 
         Public Sub New()
             InitializeComponent()
+            Dim appVersion = My.Application.Info.Version.ToString()
+            Me.Title = $"HomeCockpit  - Jonas Lang / Timo Boehme - V{appVersion}"
+            VersionText.Text = $"Version: {appVersion}"
             settings = AppSettings.Load()
             autoStart = New AutoStartManager("EncoderWpfApp", settings)
             AutostartMenuItem.IsChecked = autoStart.IsEnabled()

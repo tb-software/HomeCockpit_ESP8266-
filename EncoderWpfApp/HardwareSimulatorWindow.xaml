@@ -9,5 +9,6 @@
         <Button Content="Rotate Down + Button" Margin="0,0,0,5" Click="RotateDownBtn_Click" />
         <Button Content="Button Press" Margin="0,0,0,5" Click="ButtonPress_Click" />
         <Button Content="Button Long Press" Click="ButtonLongPress_Click" />
+        <Button Content="Run All" Margin="0,10,0,0" Click="RunAllButtons_Click" />
     </StackPanel>
 </Window>
