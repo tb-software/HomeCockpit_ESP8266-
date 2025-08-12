@@ -1,16 +1,17 @@
 Imports System
 Imports System.Threading.Tasks
 Imports System.Windows
+Imports System.Windows.Controls
 Imports EncoderLib
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-12
-'  Edited:  2025-08-12
+'  Edited:  2025-08-14
 '  Author:  ChatGPT
 '  Description: Simulates hardware events via buttons.
 '------------------------------------------------------------------------------
 Namespace EncoderWpfApp
-    Partial Class HardwareSimulatorWindow
+    Public Partial Class HardwareSimulatorWindow
         Inherits Window
 
         Private ReadOnly processor As EncoderInputProcessor
@@ -76,7 +77,13 @@ Namespace EncoderWpfApp
         End Function
 
         Private Async Sub RunAllButtons_Click(sender As Object, e As RoutedEventArgs)
-            Await ClickAllButtonsAsync()
+            Dim btn = CType(sender, Button)
+            btn.IsEnabled = False
+            Try
+                Await ClickAllButtonsAsync()
+            Finally
+                btn.IsEnabled = True
+            End Try
         End Sub
     End Class
 End Namespace
