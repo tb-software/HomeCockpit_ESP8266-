@@ -12,6 +12,7 @@
                 <MenuItem x:Name="ComPortMenuItem" Header="_COM-Port" />
                 <MenuItem x:Name="KeyMappingMenuItem" Header="_Key Mapping" />
                 <MenuItem x:Name="SimulatorMenuItem" Header="_Simulator" />
+                <MenuItem x:Name="UsageMenuItem" Header="_Usage" />
             </MenuItem>
         </Menu>
         <StackPanel Margin="10">
