@@ -1,6 +1,6 @@
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-14
+'  Edited:  2025-08-12
 '  Author:  ChatGPT
 '  Description: Main window showing connection info and autostart.
 '------------------------------------------------------------------------------
@@ -46,6 +46,7 @@ Partial Class MainWindow
         If Environment.GetCommandLineArgs().Contains("--autostart") Then
             Me.Hide()
         End If
+        App.Tracker.Record("MainWindowOpened")
     End Sub
 
     Private Sub HandleLine(line As String)
@@ -134,6 +135,7 @@ Partial Class MainWindow
     End Sub
 
     Private Sub KeyMappingMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles KeyMappingMenuItem.Click
+        App.Tracker.Record("KeyMappingOpened")
         Dim dlg = New KeyMappingWindow(settings.KeyMapping)
         If dlg.ShowDialog() Then
             settings.Save()
@@ -142,8 +144,15 @@ Partial Class MainWindow
     End Sub
 
     Private Sub SimulatorMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles SimulatorMenuItem.Click
+        App.Tracker.Record("SimulatorOpened")
         Dim sim As New HardwareSimulatorWindow(processor)
         sim.Show()
+    End Sub
+
+    Private Sub UsageMenuItem_Click(sender As Object, e As RoutedEventArgs) Handles UsageMenuItem.Click
+        App.Tracker.Record("UsageStatsOpened")
+        Dim win As New UsageStatisticsWindow()
+        win.Show()
     End Sub
 
     Private Sub OnStateChanged(sender As Object, e As EventArgs)
