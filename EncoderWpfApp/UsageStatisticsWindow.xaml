@@ -1,0 +1,18 @@
+<Window x:Class="UsageStatisticsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Usage Statistics" Height="300" Width="400">
+    <ScrollViewer>
+        <ItemsControl ItemsSource="{Binding}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <TextBlock Text="{Binding Name}" Width="150" />
+                        <Rectangle Height="20" Width="{Binding Width}" Fill="SteelBlue" />
+                        <TextBlock Text="{Binding Count}" Margin="5,0,0,0" />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
+</Window>
