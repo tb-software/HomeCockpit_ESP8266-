@@ -7,7 +7,7 @@ Imports System.Threading
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-31
+'  Edited:  2025-09-02
 '  Author:  ChatGPT
 '  Description: Tests for EncoderInputProcessor.
 '------------------------------------------------------------------------------
@@ -33,6 +33,16 @@ Public Class EncoderInputProcessorTests
         processor.Process(New EncoderMessage(1, RotationDirection.Clockwise), DateTime.UtcNow)
         Assert.AreEqual(1, keyboard.Sent.Count)
         Assert.AreEqual(WindowsKey.Up, keyboard.Sent(0)(0))
+    End Sub
+
+    <TestMethod>
+    Public Sub FirstRotationWithoutBaselineSendsKey()
+        Dim keyboard = New KeyboardMock()
+        Dim processor = New EncoderInputProcessor(keyboard)
+        processor.Mapper = New KeyMapper() With {.RotateUp = "A"}
+        processor.Process(New EncoderMessage(1, RotationDirection.Clockwise), DateTime.UtcNow)
+        Assert.AreEqual(1, keyboard.Sent.Count)
+        Assert.AreEqual(WindowsKey.A, keyboard.Sent(0)(0))
     End Sub
 
     <TestMethod>

@@ -4,7 +4,7 @@ Imports System.Timers
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-31
+'  Edited:  2025-09-02
 '  Author:  ChatGPT
 '  Description: Processes hardware messages and triggers keyboard actions.
 '------------------------------------------------------------------------------
@@ -24,12 +24,14 @@ Public Class EncoderInputProcessor
     Public Sub New(keyboard As IKeyboardSender)
         Me.keyboard = keyboard
         Me.Mapper = New KeyMapper()
+        lastPosition = 0
         releaseTimer = CreateReleaseTimer()
     End Sub
 
     Public Sub New(keyboard As IKeyboardSender, mapper As KeyMapper)
         Me.keyboard = keyboard
         Me.Mapper = mapper
+        lastPosition = 0
         releaseTimer = CreateReleaseTimer()
     End Sub
 

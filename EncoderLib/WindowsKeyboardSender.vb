@@ -5,7 +5,7 @@ Imports System.Collections.Generic
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-30
+'  Edited:  2025-09-02
 '  Author:  ChatGPT
 '  Description: Sends keyboard input via Win32 SendInput.
 '------------------------------------------------------------------------------
@@ -71,15 +71,25 @@ Public Class WindowsKeyboardSender
 
     Public Sub SendKeys(keys As IReadOnlyList(Of WindowsKey)) Implements IKeyboardSender.SendKeys
         If keys Is Nothing OrElse keys.Count = 0 Then Return
-        Dim inputs As New List(Of INPUT)()
+
+        Dim downs As New List(Of INPUT)()
         For Each virtualKey In keys
-            inputs.Add(CreateKeyInput(virtualKey, False))
+            downs.Add(CreateKeyInput(virtualKey, False))
         Next
+
+        Dim ups As New List(Of INPUT)()
         For i = keys.Count - 1 To 0 Step -1
-            inputs.Add(CreateKeyInput(keys(i), True))
+            ups.Add(CreateKeyInput(keys(i), True))
         Next
-        Dim sent = SendInput(CUInt(inputs.Count), inputs.ToArray(), Marshal.SizeOf(GetType(INPUT)))
-        If sent <> inputs.Count Then
+
+        Dim size = Marshal.SizeOf(GetType(INPUT))
+        Dim sent = SendInput(CUInt(downs.Count), downs.ToArray(), size)
+        If sent <> downs.Count Then
+            Throw New Win32Exception(Marshal.GetLastWin32Error())
+        End If
+
+        sent = SendInput(CUInt(ups.Count), ups.ToArray(), size)
+        If sent <> ups.Count Then
             Throw New Win32Exception(Marshal.GetLastWin32Error())
         End If
     End Sub
