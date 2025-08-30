@@ -5,7 +5,7 @@ Imports System.Collections.Generic
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-09-02
+'  Edited:  2025-08-30
 '  Author:  ChatGPT
 '  Description: Sends keyboard input via Win32 SendInput.
 '------------------------------------------------------------------------------
@@ -15,7 +15,14 @@ Public Class WindowsKeyboardSender
     <StructLayout(LayoutKind.Sequential)>
     Private Structure INPUT
         Public type As Integer
-        Public ki As KEYBDINPUT
+        Public U As InputUnion
+    End Structure
+
+    <StructLayout(LayoutKind.Explicit)>
+    Private Structure InputUnion
+        <FieldOffset(0)> Public ki As KEYBDINPUT
+        <FieldOffset(0)> Public mi As MOUSEINPUT
+        <FieldOffset(0)> Public hi As HARDWAREINPUT
     End Structure
 
     <StructLayout(LayoutKind.Sequential)>
@@ -25,6 +32,23 @@ Public Class WindowsKeyboardSender
         Public dwFlags As UInteger
         Public time As UInteger
         Public dwExtraInfo As IntPtr
+    End Structure
+
+    <StructLayout(LayoutKind.Sequential)>
+    Private Structure MOUSEINPUT
+        Public dx As Integer
+        Public dy As Integer
+        Public mouseData As UInteger
+        Public dwFlags As UInteger
+        Public time As UInteger
+        Public dwExtraInfo As IntPtr
+    End Structure
+
+    <StructLayout(LayoutKind.Sequential)>
+    Private Structure HARDWAREINPUT
+        Public uMsg As UInteger
+        Public wParamL As UShort
+        Public wParamH As UShort
     End Structure
 
     Private Const INPUT_KEYBOARD As Integer = 1
@@ -78,10 +102,10 @@ Public Class WindowsKeyboardSender
 
         Dim input As New INPUT()
         input.type = INPUT_KEYBOARD
-        input.ki = New KEYBDINPUT()
-        input.ki.wVk = wVk
-        input.ki.wScan = wScan
-        input.ki.dwFlags = flags
+        input.U.ki = New KEYBDINPUT()
+        input.U.ki.wVk = wVk
+        input.U.ki.wScan = wScan
+        input.U.ki.dwFlags = flags
         Return input
     End Function
 End Class
