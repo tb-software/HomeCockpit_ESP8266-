@@ -5,7 +5,7 @@ Imports System.Collections.Generic
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-30
+'  Edited:  2025-09-02
 '  Author:  ChatGPT
 '  Description: Sends keyboard input via Win32 SendInput.
 '------------------------------------------------------------------------------
@@ -62,14 +62,25 @@ Public Class WindowsKeyboardSender
 
     Private Function CreateKeyInput(virtualKey As WindowsKey, keyUp As Boolean) As INPUT
         Dim scan = MapVirtualKeyEx(CUInt(virtualKey), MAPVK_VK_TO_VSC_EX, GetKeyboardLayout(0))
-        Dim flags As UInteger = KEYEVENTF_SCANCODE
+
+        Dim flags As UInteger = 0UI
+        Dim wVk As UShort = CUShort(virtualKey)
+        Dim wScan As UShort = 0US
+
+        If scan <> 0UI Then
+            flags = KEYEVENTF_SCANCODE
+            wVk = 0US
+            wScan = CUShort(scan And &HFFUI)
+            If (scan And &H100UI) <> 0UI Then flags = flags Or KEYEVENTF_EXTENDEDKEY
+        End If
+
         If keyUp Then flags = flags Or KEYEVENTF_KEYUP
-        If (scan And &H100UI) <> 0UI Then flags = flags Or KEYEVENTF_EXTENDEDKEY
+
         Dim input As New INPUT()
         input.type = INPUT_KEYBOARD
         input.ki = New KEYBDINPUT()
-        input.ki.wVk = 0
-        input.ki.wScan = CUShort(scan And &HFFUI)
+        input.ki.wVk = wVk
+        input.ki.wScan = wScan
         input.ki.dwFlags = flags
         Return input
     End Function
