@@ -7,7 +7,7 @@ Imports EncoderLib
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-12
-'  Edited:  2025-08-31
+'  Edited:  2025-09-01
 '  Author:  ChatGPT
 '  Description: Simulates hardware events via buttons.
 '------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ Public Partial Class HardwareSimulatorWindow
         Try
             processor.Process(msg, DateTime.UtcNow)
         Catch ex As Win32Exception
-            MessageBox.Show("Die Tasten konnten nicht gesendet werden. Bitte als Administrator ausführen.", "HomeCockpit", MessageBoxButton.OK, MessageBoxImage.Warning)
+            MessageBox.Show(Win32ErrorHelper.ToMessage(ex), "HomeCockpit", MessageBoxButton.OK, MessageBoxImage.Warning)
         End Try
     End Sub
 
