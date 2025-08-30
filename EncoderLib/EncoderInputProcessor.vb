@@ -4,7 +4,7 @@ Imports System.Timers
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-11
+'  Edited:  2025-08-31
 '  Author:  ChatGPT
 '  Description: Processes hardware messages and triggers keyboard actions.
 '------------------------------------------------------------------------------
@@ -56,14 +56,16 @@ Public Class EncoderInputProcessor
         If lastPosition.HasValue Then
             Dim stepCount = msg.Position - lastPosition.Value
             If stepCount <> 0 Then
-                Dim combo As IReadOnlyList(Of WindowsKey)
+                Dim sequences As IReadOnlyList(Of IReadOnlyList(Of WindowsKey))
                 If buttonPressed Then
-                    combo = KeyCombinationParser.Parse(If(stepCount > 0, Mapper.RotateUpWithButton, Mapper.RotateDownWithButton))
+                    sequences = KeySequenceParser.ParseSequence(If(stepCount > 0, Mapper.RotateUpWithButton, Mapper.RotateDownWithButton))
                 Else
-                    combo = KeyCombinationParser.Parse(If(stepCount > 0, Mapper.RotateUp, Mapper.RotateDown))
+                    sequences = KeySequenceParser.ParseSequence(If(stepCount > 0, Mapper.RotateUp, Mapper.RotateDown))
                 End If
                 For i = 1 To Math.Abs(stepCount)
-                    keyboard.SendKeys(combo)
+                    For Each combo In sequences
+                        keyboard.SendKeys(combo)
+                    Next
                 Next
             End If
         End If
@@ -73,11 +75,10 @@ Public Class EncoderInputProcessor
     Private Sub CheckButtonRelease(timestamp As DateTime)
         If buttonPressed AndAlso timestamp - lastButtonSignal > releaseThreshold Then
             Dim duration = timestamp - buttonPressStart
-            If duration >= longPressThreshold Then
-                keyboard.SendKeys(KeyCombinationParser.Parse(Mapper.ButtonLongPress))
-            Else
-                keyboard.SendKeys(KeyCombinationParser.Parse(Mapper.ButtonPress))
-            End If
+            Dim text = If(duration >= longPressThreshold, Mapper.ButtonLongPress, Mapper.ButtonPress)
+            For Each combo In KeySequenceParser.ParseSequence(text)
+                keyboard.SendKeys(combo)
+            Next
             buttonPressed = False
         End If
     End Sub
