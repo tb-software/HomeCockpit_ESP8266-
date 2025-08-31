@@ -64,11 +64,16 @@ Public Class EncoderInputProcessor
                 Else
                     sequences = KeySequenceParser.ParseSequence(If(stepCount > 0, Mapper.RotateUp, Mapper.RotateDown))
                 End If
-                For i = 1 To Math.Abs(stepCount)
-                    For Each combo In sequences
-                        keyboard.SendKeys(combo)
+                Try
+                    For i = 1 To Math.Abs(stepCount)
+                        For Each combo In sequences
+                            keyboard.SendKeys(combo)
+                        Next
                     Next
-                Next
+                Finally
+                    lastPosition = msg.Position
+                End Try
+                Return
             End If
         End If
         lastPosition = msg.Position
@@ -78,10 +83,13 @@ Public Class EncoderInputProcessor
         If buttonPressed AndAlso timestamp - lastButtonSignal > releaseThreshold Then
             Dim duration = timestamp - buttonPressStart
             Dim text = If(duration >= longPressThreshold, Mapper.ButtonLongPress, Mapper.ButtonPress)
-            For Each combo In KeySequenceParser.ParseSequence(text)
-                keyboard.SendKeys(combo)
-            Next
-            buttonPressed = False
+            Try
+                For Each combo In KeySequenceParser.ParseSequence(text)
+                    keyboard.SendKeys(combo)
+                Next
+            Finally
+                buttonPressed = False
+            End Try
         End If
     End Sub
 
