@@ -1,9 +1,10 @@
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-12
+'  Edited:  2025-09-01
 '  Author:  ChatGPT
 '  Description: Main window showing connection info and autostart.
 '------------------------------------------------------------------------------
+Imports System.ComponentModel
 Imports System.Windows
 Imports System.Windows.Controls
 Imports System.Windows.Threading
@@ -58,7 +59,11 @@ Partial Class MainWindow
                                If isVersion Then
                                    VersionText.Text = line.Trim()
                                ElseIf parsed Then
-                                   processor.Process(msg, Date.Now)
+                                   Try
+                                       processor.Process(msg, Date.Now)
+                                   Catch ex As Win32Exception
+                                       MessageBox.Show(Win32ErrorHelper.ToMessage(ex), "HomeCockpit", MessageBoxButton.OK, MessageBoxImage.Warning)
+                                   End Try
                                End If
                            End Sub)
     End Sub

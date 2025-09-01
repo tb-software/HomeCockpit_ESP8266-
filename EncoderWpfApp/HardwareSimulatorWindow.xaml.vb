@@ -1,4 +1,5 @@
 Imports System
+Imports System.ComponentModel
 Imports System.Threading.Tasks
 Imports System.Windows
 Imports System.Windows.Controls
@@ -6,7 +7,7 @@ Imports EncoderLib
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-12
-'  Edited:  2025-08-14
+'  Edited:  2025-09-01
 '  Author:  ChatGPT
 '  Description: Simulates hardware events via buttons.
 '------------------------------------------------------------------------------
@@ -24,35 +25,43 @@ Public Partial Class HardwareSimulatorWindow
         position = 0
     End Sub
 
+    Private Sub ProcessSafe(msg As HardwareMessage)
+        Try
+            processor.Process(msg, DateTime.UtcNow)
+        Catch ex As Win32Exception
+            MessageBox.Show(Win32ErrorHelper.ToMessage(ex), "HomeCockpit", MessageBoxButton.OK, MessageBoxImage.Warning)
+        End Try
+    End Sub
+
     Private Sub RotateUp_Click(sender As Object, e As RoutedEventArgs)
         position += 1
-        processor.Process(New EncoderMessage(position, RotationDirection.Clockwise), DateTime.UtcNow)
+        ProcessSafe(New EncoderMessage(position, RotationDirection.Clockwise))
     End Sub
 
     Private Sub RotateDown_Click(sender As Object, e As RoutedEventArgs)
         position -= 1
-        processor.Process(New EncoderMessage(position, RotationDirection.CounterClockwise), DateTime.UtcNow)
+        ProcessSafe(New EncoderMessage(position, RotationDirection.CounterClockwise))
     End Sub
 
     Private Sub RotateUpBtn_Click(sender As Object, e As RoutedEventArgs)
-        processor.Process(New ButtonMessage(), DateTime.UtcNow)
+        ProcessSafe(New ButtonMessage())
         RotateUp_Click(sender, e)
     End Sub
 
     Private Sub RotateDownBtn_Click(sender As Object, e As RoutedEventArgs)
-        processor.Process(New ButtonMessage(), DateTime.UtcNow)
+        ProcessSafe(New ButtonMessage())
         RotateDown_Click(sender, e)
     End Sub
 
     Private Sub ButtonPress_Click(sender As Object, e As RoutedEventArgs)
-        processor.Process(New ButtonMessage(), DateTime.UtcNow)
+        ProcessSafe(New ButtonMessage())
     End Sub
 
     Private Async Function PerformButtonLongPressAsync() As Task
-        processor.Process(New ButtonMessage(), DateTime.UtcNow)
+        ProcessSafe(New ButtonMessage())
         For i = 1 To 6
             Await delayProvider(TimeSpan.FromMilliseconds(150))
-            processor.Process(New ButtonMessage(), DateTime.UtcNow)
+            ProcessSafe(New ButtonMessage())
         Next
     End Function
 
@@ -79,6 +88,7 @@ Public Partial Class HardwareSimulatorWindow
         Dim btn = CType(sender, Button)
         btn.IsEnabled = False
         Try
+            Await delayProvider(TimeSpan.FromSeconds(3))
             Await ClickAllButtonsAsync()
         Finally
             btn.IsEnabled = True

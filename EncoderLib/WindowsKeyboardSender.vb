@@ -1,10 +1,11 @@
 Imports System
+Imports System.ComponentModel
 Imports System.Runtime.InteropServices
 Imports System.Collections.Generic
 
 '------------------------------------------------------------------------------
 '  Created: 2025-08-09
-'  Edited:  2025-08-14
+'  Edited:  2025-09-02
 '  Author:  ChatGPT
 '  Description: Sends keyboard input via Win32 SendInput.
 '------------------------------------------------------------------------------
@@ -14,7 +15,14 @@ Public Class WindowsKeyboardSender
     <StructLayout(LayoutKind.Sequential)>
     Private Structure INPUT
         Public type As Integer
-        Public ki As KEYBDINPUT
+        Public U As InputUnion
+    End Structure
+
+    <StructLayout(LayoutKind.Explicit)>
+    Private Structure InputUnion
+        <FieldOffset(0)> Public ki As KEYBDINPUT
+        <FieldOffset(0)> Public mi As MOUSEINPUT
+        <FieldOffset(0)> Public hi As HARDWAREINPUT
     End Structure
 
     <StructLayout(LayoutKind.Sequential)>
@@ -24,6 +32,23 @@ Public Class WindowsKeyboardSender
         Public dwFlags As UInteger
         Public time As UInteger
         Public dwExtraInfo As IntPtr
+    End Structure
+
+    <StructLayout(LayoutKind.Sequential)>
+    Private Structure MOUSEINPUT
+        Public dx As Integer
+        Public dy As Integer
+        Public mouseData As UInteger
+        Public dwFlags As UInteger
+        Public time As UInteger
+        Public dwExtraInfo As IntPtr
+    End Structure
+
+    <StructLayout(LayoutKind.Sequential)>
+    Private Structure HARDWAREINPUT
+        Public uMsg As UInteger
+        Public wParamL As UShort
+        Public wParamH As UShort
     End Structure
 
     Private Const INPUT_KEYBOARD As Integer = 1
@@ -46,27 +71,51 @@ Public Class WindowsKeyboardSender
 
     Public Sub SendKeys(keys As IReadOnlyList(Of WindowsKey)) Implements IKeyboardSender.SendKeys
         If keys Is Nothing OrElse keys.Count = 0 Then Return
-        Dim list As New List(Of INPUT)()
-        For Each key In keys
-            list.Add(CreateInput(key, False))
+
+        Dim downs As New List(Of INPUT)()
+        For Each virtualKey In keys
+            downs.Add(CreateKeyInput(virtualKey, False))
         Next
+
+        Dim ups As New List(Of INPUT)()
         For i = keys.Count - 1 To 0 Step -1
-            list.Add(CreateInput(keys(i), True))
+            ups.Add(CreateKeyInput(keys(i), True))
         Next
-        SendInput(CUInt(list.Count), list.ToArray(), Marshal.SizeOf(GetType(INPUT)))
+
+        Dim size = Marshal.SizeOf(GetType(INPUT))
+        Dim sent = SendInput(CUInt(downs.Count), downs.ToArray(), size)
+        If sent <> downs.Count Then
+            Throw New Win32Exception(Marshal.GetLastWin32Error())
+        End If
+
+        sent = SendInput(CUInt(ups.Count), ups.ToArray(), size)
+        If sent <> ups.Count Then
+            Throw New Win32Exception(Marshal.GetLastWin32Error())
+        End If
     End Sub
 
-    Private Function CreateInput(key As WindowsKey, keyUp As Boolean) As INPUT
-        Dim scan = MapVirtualKeyEx(CUInt(key), MAPVK_VK_TO_VSC_EX, GetKeyboardLayout(0))
-        Dim flags As UInteger = KEYEVENTF_SCANCODE
+    Private Function CreateKeyInput(virtualKey As WindowsKey, keyUp As Boolean) As INPUT
+        Dim scan = MapVirtualKeyEx(CUInt(virtualKey), MAPVK_VK_TO_VSC_EX, GetKeyboardLayout(0))
+
+        Dim flags As UInteger = 0UI
+        Dim wVk As UShort = CUShort(virtualKey)
+        Dim wScan As UShort = 0US
+
+        If scan <> 0UI Then
+            flags = KEYEVENTF_SCANCODE
+            wVk = 0US
+            wScan = CUShort(scan And &HFFUI)
+            If (scan And &H100UI) <> 0UI Then flags = flags Or KEYEVENTF_EXTENDEDKEY
+        End If
+
         If keyUp Then flags = flags Or KEYEVENTF_KEYUP
-        If (scan And &H100UI) <> 0UI Then flags = flags Or KEYEVENTF_EXTENDEDKEY
+
         Dim input As New INPUT()
         input.type = INPUT_KEYBOARD
-        input.ki = New KEYBDINPUT()
-        input.ki.wVk = 0
-        input.ki.wScan = CUShort(scan And &HFFUI)
-        input.ki.dwFlags = flags
+        input.U.ki = New KEYBDINPUT()
+        input.U.ki.wVk = wVk
+        input.U.ki.wScan = wScan
+        input.U.ki.dwFlags = flags
         Return input
     End Function
 End Class
